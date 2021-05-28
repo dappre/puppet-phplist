@@ -1,0 +1,283 @@
+<?php
+
+/*
+
+* ==============================================================================================================
+* 
+* 
+* The minimum requirements to get phpList working are in this file. 
+* If you are interested in tweaking more options, check out the config_extended.php file
+* or visit http://resources.phplist.com/system/config
+* 
+* ** NOTE: To use options from config_extended.php, you need to copy them to this file **
+* 
+==============================================================================================================
+
+*/
+
+# what is your Mysql database server hostname
+$database_host = "localhost";
+
+# what is the name of the database we are using
+$database_name = "<%= @db_name %>";
+
+# what user has access to this database
+$database_user = "<%= @db_user %>";
+
+# and what is the password to login to control the database
+$database_password = '<%= @db_password %>';
+
+# if you change the path to the phpList system, make the change here as well
+# path should be relative to the root directory of your webserver (document root)
+$pageroot = '/phplist';
+$adminpages = '/phplist/admin';
+
+# if test is true (not 0) it will not actually send ANY messages, but display what it would have sent
+# this is here, to make sure you edited the config file and mails are not sent "accidentally"
+# on unmanaged systems
+
+define ("TEST",<%= @test %>);
+
+
+/*
+
+=========================================================================
+
+Message sending options
+* phpList now only uses phpMailer for sending, but below you can
+* tweak a few options on how that is done
+
+=========================================================================
+
+*/
+
+# you can specify the location of the phpMailer class here
+# if not set, the version included in the distribution will be used
+## eg for Debian based systems, it may be something like the example below
+## when you do this, you may need to run some tests, to see if the phpMailer version
+## you have works ok
+#define ('PHPMAILER_PATH','/usr/share/php/libphp-phpmailer/class.phpmailer.php');
+define ('PHPMAILER_PATH','/usr/share/php/PHPMailer/class.phpmailer.php');
+
+# To use a SMTP server please give your server hostname here, leave it blank to use the standard
+# PHP mail() command.
+# if your SMTP server is called "smtp.mydomain.com" you enter this below like this:
+# 
+#     define("PHPMAILERHOST",'smtp.mydomain.com');
+define("PHPMAILERHOST",'');
+
+# in the above you can specify multiple SMTP servers like this:
+# 'server1:port1;server2:port2;server3:port3' eg
+#define('PHPMAILERHOST','smtp1.mydomain.com:25;smtp2.mydomain.com:2500;smtp3.phplist.com:5123');
+
+# if you want to use smtp authentication when sending the email uncomment the following
+# two lines and set the username and password to be the correct ones
+#$phpmailer_smtpuser = 'smtpuser';
+#$phpmailer_smtppassword = 'smtppassword';
+
+# To use a SMTP server please give your server hostname here, leave it blank to use the standard
+# PHP mail() command.
+# if your SMTP server is called "smtp.mydomain.com" you enter this below like this:
+# define("PHPMAILERHOST",'smtp.mydomain.com');
+
+## test vs blast
+# you can send test messages via a different SMTP host than the actual campaign queue 
+# if not set, these default to the above PHPMAILERHOST and PHPMAILERPORT
+# define('PHPMAILERTESTHOST','testsmtp.mydomain.com');
+# define('PHPMAILERBLASTHOST','livesmtp.mydomain.com');
+# define('PHPMAILERBLASTPORT',25);
+
+# to use SSL/TLS when sending set this value
+# it can either be "ssl" or "tls", nothing else
+# define("PHPMAILER_SECURE",'ssl');
+
+## Smtp Timeout
+## If you use SMTP for sending, you can set the timeout of the SMTP connection
+## defaults to 5 seconds
+# define('SMTP_TIMEOUT',5);
+
+# A few people have reported problems with '=' characters being visible in received emails,
+# usually with some combination of Hotmail, Outlook and Exchange.
+# phplist 3 uses quoted printable as the default encoding whereas phplist 2.10.x uses 8bit,
+# so you can revert to the 8bit method
+define("HTMLEMAIL_ENCODING","8bit");
+
+
+/*
+
+==============================================================================================================
+* 
+* Settings for handling bounces
+* 
+* This section is OPTIONAL, and not necessary to send out mailings, but it is highly recommended to correctly 
+* set up bounce processing. Without processing of bounces your system will end up sending large amounts of
+* unnecessary messages, which overloads your own server, the receiving servers and internet traffic as a whole
+* 
+==============================================================================================================
+
+*/
+
+# Message envelope. 
+# 
+# This is the address that most bounces will be delivered to
+# Your should make this an address that no PERSON reads
+# but a mailbox that phpList can empty every so often, to process the bounces
+
+$message_envelope = '<%= @bounce_email %>';
+
+# Handling bounces. Check README.bounces for more info
+# This can be 'pop' or 'mbox'
+$bounce_protocol = 'pop';
+
+# set this to 0, if you set up a cron to download bounces regularly by using the
+# commandline option. If this is 0, users cannot run the page from the web
+# frontend. Read README.commandline to find out how to set it up on the
+# commandline
+define ("MANUALLY_PROCESS_BOUNCES",1);
+
+# when the protocol is pop, specify these three
+$bounce_mailbox_host = '<%= @bounce_host %>';
+$bounce_mailbox_user = '<%= @bounce_user %>';
+$bounce_mailbox_password = '<%= @bounce_password %>';
+
+# the "port" is the remote port of the connection to retrieve the emails
+# the default should be fine but if it doesn't work, you can try the second
+# one. To do that, add a # before the first line and take off the one before the
+# second line
+#$bounce_mailbox_port = "110/pop3/notls";
+$bounce_mailbox_port = "110/pop3";
+
+# it's getting more common to have secure connections, in which case you probably want to use
+#$bounce_mailbox_port = "995/pop3/ssl/novalidate-cert";
+
+# when the protocol is mbox specify this one
+# it needs to be a local file in mbox format, accessible to your webserver user
+$bounce_mailbox = '/var/mail/listbounce';
+
+# set this to 0 if you want to keep your messages in the mailbox. this is potentially
+# a problem, because bounces will be counted multiple times, so only do this if you are
+# testing things.
+$bounce_mailbox_purge = 1;
+
+# set this to 0 if you want to keep unprocessed messages in the mailbox. Unprocessed
+# messages are messages that could not be matched with a user in the system
+# messages are still downloaded into phpList, so it is safe to delete them from
+# the mailbox and view them in phpList
+$bounce_mailbox_purge_unprocessed = 1;
+
+# how many bounces in a row need to have occurred for a user to be marked unconfirmed
+$bounce_unsubscribe_threshold = 5;
+
+
+/*
+
+=========================================================================
+
+LDAP admin authentication settings
+
+=========================================================================
+
+*/
+
+# set this to 1 to enable LDAP authentication for admin logins
+$ldap_enabled = 1;
+
+# the LDAP host to use
+$ldap_url = "<%= @ldap_proto%>://<%= @ldap_server %>:<%= @ldap_port %>";
+
+# the DN of the user to bind as when searching for the actual admin
+# entry that matches what the user typed in on the auth page
+# (this DN should have access only to search and read the accounts
+# which are eligible for use as admin logins; it does not need to
+# and should not be able to read the password fields nor modify
+# any other information in the directory)
+# Set this value empty if you want to do an anonymous bind.
+$ldap_auth_bind_dn = "<%= @ldap_bind_dn %>";
+
+# the password for $ldap_auth_bind_dn
+# (Will be ignored if ldap_auth_bind_dn is empty)
+$ldap_auth_bind_pw = "<%= @ldap_bind_password %>";
+
+# users under this point in the directory will have their accounts
+# created automatically when they first login - if you don't want
+# this feature, comment this out
+$ldap_all_user_base_dn = "ou=People,<%= @ldap_base %>";
+
+# the filter pattern to locate the entry that matches the user's
+# login name ("__LOGIN__" is replaced with the user's login name)
+$ldap_all_user_pattern = "(uid=__LOGIN__)";
+
+# the attribute which contains the login name
+$ldap_all_user_uid_attribute = "uid";
+
+# set this to 1 if users who are "all_user" are super admins, or 0
+# means that they are not
+$ldap_all_user_is_super = 1;
+
+# set this array to give some specific privileges to newly created
+# admin users. By default, no privileges will be given, besides to
+# super admins.
+$ldap_default_privs = array(
+      'subscribers' => true,
+      'campaigns' => true,
+      'statistics' => true,
+      'settings' => true
+);
+
+# the users under this point in the directory must have their admin
+# accounts explicitly created in PHPList and the directory is
+# justed used to check the authentication - if you don't want this
+# feature, comment this out
+$ldap_matching_user_base_dn = "ou=People,<%= @ldap_base %>";
+
+# the filter pattern to locate the entry that matches the user's
+# login name ("__LOGIN__" is replaced with the user's login name)
+$ldap_matching_user_pattern = "(&(uid=__LOGIN__)(|(uid=bdonneaux)(uid=rzwarts)(uid=mlouman)(uid=blouman)(uid=tlouman)(uid=rstrauven)(uid=jderoos)))";
+
+# the attribute which contains the login name
+$ldap_matching_user_uid_attribute = "uid";
+
+# users who are in this array are not authenticated via LDAP, the
+# password given in the "admin" table is used for them;
+# only set this if you want to give yourself a local admin account
+# in the event that PHPList can't connect to the LDAP server or
+# something else goes terribly wrong - it is generally more secure
+# to leave this commented out
+$ldap_except_users = array('admin');
+
+
+/*
+
+=========================================================================
+
+Security related settings
+
+=========================================================================
+
+*/
+
+# set this to 1 if you want phpList to deal with login for the administrative
+# section of the system
+# you will be able to add administrators who control their own lists
+# default login is "admin" with password "phplist"
+$require_login = 1;
+$manage_admin = 1;
+$disable_forgotpassword = 1;
+define('HASH_ALGO', '<%= @hash_algo %>');
+
+# the FCKeditor is now included in PHPlist, but the use of it is experimental
+# if it's not working for you, set this to 0
+# NOTE: If you enable TinyMCE please disable FCKeditor and vice-versa.
+define("USEFCK",1);
+
+# If you want to upload images to the FCKeditor, you need to specify the location
+# of the directory where the images go. This needs to be writable by the webserver,
+# and it needs to be in your public document (website) area
+# the directory is relative to the root of PHPlist as set above
+# This is a potential security risk, so read README.security for more information
+define("FCKIMAGES_DIR","upload");
+define("UPLOADIMAGES_DIR","phplist/upload");
+
+define('EMAILTEXTCREDITS', 1);
+define('PAGETEXTCREDITS', 1);
+define('WARN_ABOUT_PHP_SETTINGS', 0);
