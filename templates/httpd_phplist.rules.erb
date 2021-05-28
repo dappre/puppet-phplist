@@ -1,0 +1,27 @@
+Alias /phplist /usr/share/phplist/www
+
+<Directory /usr/share/phplist/www>
+	Options None
+	Options +Includes +FollowSymLinks
+	#AllowOverride Options Limit
+	#AllowOverride Options Indexes Limit
+	AllowOverride All
+	AddType application/x-httpd-php .php
+	php_admin_value open_basedir /usr/share/phplist:/var/lib/phplist:/etc/phplist:/tmp:/dev/urandom:/usr/share/php/PHPMailer
+	php_admin_flag file_uploads on
+	php_admin_value upload_max_filesize 5M
+	php_admin_value post_max_size 5M
+	php_admin_value memory_limit 128M
+	php_admin_value session.save_path /var/lib/phplist/tmp
+	php_admin_value upload_tmp_dir /var/lib/phplist/tmp
+	DirectoryIndex index.php index.html
+</Directory>
+
+<Location /phplist/admin>
+	# TODO: enable Shibboleth, but not easy to integrate
+	#AuthType shibboleth
+	#ShibRequestSetting requireSession true
+	#ShibUseEnvironment On
+	#Require valid-user
+	Include acl/management.acl
+</Location>
