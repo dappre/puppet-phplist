@@ -1,27 +1,37 @@
-Alias /phplist /usr/share/phplist/www
+Alias /phplist <%= @vars['base_dir'] %>/www
+Alias /phplist/upload <%= @vars['data_dir'] %>/upload
 
-<Directory /usr/share/phplist/www>
+<Directory <%= @vars['base_dir'] %>/www>
 	Options None
 	Options +Includes +FollowSymLinks
 	#AllowOverride Options Limit
 	#AllowOverride Options Indexes Limit
 	AllowOverride All
 	AddType application/x-httpd-php .php
-	php_admin_value open_basedir /usr/share/phplist:/var/lib/phplist:/etc/phplist:/tmp:/dev/urandom:/usr/share/php/PHPMailer
+	php_admin_value open_basedir <%= @vars['base_dir'] %>:<%= @vars['data_dir'] %>:<%= @vars['conf_dir'] %>:/tmp:/dev/urandom:/usr/share/php/PHPMailer
 	php_admin_flag file_uploads on
 	php_admin_value upload_max_filesize 5M
 	php_admin_value post_max_size 5M
 	php_admin_value memory_limit 128M
-	php_admin_value session.save_path /var/lib/phplist/tmp
-	php_admin_value upload_tmp_dir /var/lib/phplist/tmp
+	php_admin_value session.save_path <%= @vars['data_dir'] %>/tmp
+	php_admin_value upload_tmp_dir <%= @vars['data_dir'] %>/tmp
 	DirectoryIndex index.php index.html
 </Directory>
+<% if !@vars['admin_acl'].empty? -%>
 
 <Location /phplist/admin>
-	# TODO: enable Shibboleth, but not easy to integrate
-	#AuthType shibboleth
-	#ShibRequestSetting requireSession true
-	#ShibUseEnvironment On
-	#Require valid-user
-	Include acl/management.acl
+	<IfVersion < 2.4 >
+		Order Deny,Allow
+		Deny from all
+		Satisfy Any
+<% @vars['admin_acl'].each do |admin_src| -%>
+		Allow from <%= admin_src %>
+<% end -%>
+	</IfVersion>
+	<IfVersion >= 2.4 >
+<% @vars['admin_acl'].each do |admin_src| -%>
+		Require ip <%= admin_src %>
+<% end -%>
+	</IfVersion>
 </Location>
+<% end -%>
