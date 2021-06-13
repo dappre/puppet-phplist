@@ -1,5 +1,6 @@
 class phplist::params {
   $ensure           = 'latest'
+  $db_host          = 'localhost'
   $db_name          = 'phplistdb'
   $db_user          = 'phplist'
   $db_password      = 'FxudcYUSjUB983XD'
@@ -15,4 +16,6 @@ class phplist::params {
   $conf_dir         = '/etc/phplist'
   $data_dir         = '/var/lib/phplist'
   $www_dir          = "${base_dir}/www"
+  $manage_db        = true
+  $mysql_bin        = '/usr/bin/mysql'
 }

@@ -4,6 +4,7 @@ class phplist::install (
 
   # Collect parameters from parent class
   $ensure           = $::phplist::ensure
+  $db_host          = $::phplist::db_host
   $db_name          = $::phplist::db_name
   $db_user          = $::phplist::db_user
   $db_password      = $::phplist::db_password
@@ -19,8 +20,20 @@ class phplist::install (
   $conf_dir         = $::phplist::conf_dir
   $data_dir         = $::phplist::data_dir
   $www_dir          = $::phplist::www_dir
+  $manage_db        = $::phplist::manage_db
+  $mysql_bin        = $::phplist::mysql_bin
 
-  $mysql = "mysql --batch --skip-column-names -u${db_user} -p${db_password} ${db_name}"
+  if ($manage_db) {
+    $mysql_cmd = "${mysql_bin} --batch --skip-column-names -h${db_host} -u${db_user} -p${db_password} ${db_name}"
+
+    exec { 'phplist-update-admin-pwd':
+      path      => [ '/bin', '/usr/bin', ],
+      command   => "${mysql_cmd} -e \"UPDATE phplist_admin SET password = \'$(echo -n '${admin_password}' | ${hash_algo}sum | grep -Po '^([0-9a-f]+)(?=\s)')\' WHERE loginname = 'admin'\"",
+      onlyif    => "${mysql_cmd} -e \"SELECT loginname FROM phplist_admin WHERE loginname = 'admin'\" 2> /dev/null | grep \"^admin\"",
+      unless    => "[ \"${admin_password}\" == \"false\" ] || [ \"\$(${mysql_cmd} -e \"SELECT password FROM phplist_admin WHERE loginname = 'admin'\" | tail -1)\" == \"$(echo -n '${admin_password}' | ${hash_algo}sum | grep -Po '^([0-9a-f]+)(?=\s)')\" ]",
+      logoutput => true,
+    }
+  }
 
   package { 'php-PHPMailer':
     ensure  => latest,
@@ -58,14 +71,6 @@ class phplist::install (
     owner   => 'root',
     group   => 'apache',
     mode    => '0770',
-  } ->
-
-  exec { 'phplist-update-admin-pwd':
-    path      => [ '/bin', '/usr/bin', ],
-    command   => "${mysql} -e \"UPDATE phplist_admin SET password = \'$(echo -n '${admin_password}' | ${hash_algo}sum | grep -Po '^([0-9a-f]+)(?=\s)')\' WHERE loginname = 'admin'\"",
-    onlyif    => "${mysql} -e \"SELECT loginname FROM phplist_admin WHERE loginname = 'admin'\" 2> /dev/null | grep \"^admin\"",
-    unless    => "[ \"${admin_password}\" == \"false\" ] || [ \"\$(${mysql} -e \"SELECT password FROM phplist_admin WHERE loginname = 'admin'\" | tail -1)\" == \"$(echo -n '${admin_password}' | ${hash_algo}sum | grep -Po '^([0-9a-f]+)(?=\s)')\" ]",
-    logoutput => true,
   } ->
 
   file { 'phplist-uploadimages-lnk':

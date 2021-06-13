@@ -1,6 +1,7 @@
 class phplist (
   $ensure           = $phplist::params::ensure,
   $db_name          = $phplist::params::db_name,
+  $db_host          = $phplist::params::db_host,
   $db_user          = $phplist::params::db_user,
   $db_password      = $phplist::params::db_password,
   $admin_password   = $phplist::params::admin_password,
@@ -15,6 +16,8 @@ class phplist (
   $conf_dir         = $phplist::params::conf_dir,
   $data_dir         = $phplist::params::data_dir,
   $www_dir          = $phplist::params::www_dir,
+  $manage_db        = $phplist::params::manage_db,
+  $mysql_bin        = $phplist::params::mysql_bin,
 ) inherits phplist::params {
   if ($ensure) {
     case $ensure {
