@@ -20,26 +20,25 @@ class phplist::install (
   $data_dir         = $::phplist::data_dir
   $www_dir          = $::phplist::www_dir
 
-  Package["php-PHPMailer"] ->
-  Package["phplist"] ->
+  Package['php-PHPMailer'] ->
+  Package['phplist'] ->
   File['phplist-plugin-dir'] ->
-  File["phplist-conf"] ->
+  File['phplist-conf'] ->
   File['phplist-data-dir'] ->
   File['phplist-tmp-dir'] ->
-  Exec["phplist-update-admin-pwd"] ->
-  File["phplist-uploadimages-lnk"] ->
-  File["phplist-uploadimages-dir"] ->
-  File["phplist-upload-dir"] ->
-  File["phplist-upload-lnk"] ->
-  Host["phplist-blocked"]
+  Exec['phplist-update-admin-pwd'] ->
+  File['phplist-uploadimages-lnk'] ->
+  File['phplist-uploadimages-dir'] ->
+  File['phplist-upload-dir'] ->
+  File['phplist-upload-lnk']
 
   $mysql = "mysql --batch --skip-column-names -u${db_user} -p${db_password} ${db_name}"
 
-  package { "php-PHPMailer":
+  package { 'php-PHPMailer':
     ensure  => latest,
   }
 
-  package { "phplist":
+  package { 'phplist':
     ensure  => $ensure,
   }
 
@@ -52,9 +51,9 @@ class phplist::install (
     recurse => 'remote',
   }
 
-  file { "phplist-conf":
+  file { 'phplist-conf':
     path    => "${conf_dir}/config.php",
-    content => template("phplist/config.php.erb"),
+    content => template('phplist/config.php.erb'),
   }
 
   file { 'phplist-data-dir':
@@ -73,20 +72,20 @@ class phplist::install (
     mode    => '0770',
   }
 
-  exec { "phplist-update-admin-pwd":
-    path      => [ "/bin", "/usr/bin", ],
+  exec { 'phplist-update-admin-pwd':
+    path      => [ '/bin', '/usr/bin', ],
     command   => "${mysql} -e \"UPDATE phplist_admin SET password = \'$(echo -n '${admin_password}' | ${hash_algo}sum | grep -Po '^([0-9a-f]+)(?=\s)')\' WHERE loginname = 'admin'\"",
     onlyif    => "${mysql} -e \"SELECT loginname FROM phplist_admin WHERE loginname = 'admin'\" 2> /dev/null | grep \"^admin\"",
     unless    => "[ \"${admin_password}\" == \"false\" ] || [ \"\$(${mysql} -e \"SELECT password FROM phplist_admin WHERE loginname = 'admin'\" | tail -1)\" == \"$(echo -n '${admin_password}' | ${hash_algo}sum | grep -Po '^([0-9a-f]+)(?=\s)')\" ]",
     logoutput => true,
   }
 
-  file { "phplist-uploadimages-lnk":
+  file { 'phplist-uploadimages-lnk':
     path    => "${www_dir}/uploadimages",
     ensure  => absent,
   }
 
-  file { "phplist-uploadimages-dir":
+  file { 'phplist-uploadimages-dir':
     path    => "${data_dir}/images",
     ensure  => absent,
     recurse => true,
@@ -102,16 +101,8 @@ class phplist::install (
     mode    => '0775',
   }
 
-  file { "phplist-upload-lnk":
+  file { 'phplist-upload-lnk':
     path    => "${www_dir}/upload",
     ensure  => "${data_dir}/upload",
-  }
-
-  # Add hosts entries that prevent this phplist instance to access public phplist webservers
-  host { "phplist-blocked":
-    ensure       => present,
-    name         => "www.phplist.org",
-    ip           => "127.0.0.2",
-    host_aliases => [ "www.phplist.com", ],
   }
 }
