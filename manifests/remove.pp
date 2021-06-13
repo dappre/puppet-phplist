@@ -6,11 +6,15 @@ class phplist::remove (
   $db_name     = $::phplist::db_name
   $db_user     = $::phplist::db_user
   $db_password = $::phplist::db_password
+  $base_dir    = $::phplist::base_dir
+  $conf_dir    = $::phplist::conf_dir
+  $data_dir    = $::phplist::data_dir
+  $www_dir     = $::phplist::www_dir
 
   Package["phplist"] ->
   Host["phplist-blocked"] ->
-  File["phplist-var-dir"] ->
-  File["phplist-share-dir"] ->
+  File["phplist-data-dir"] ->
+  File["phplist-base-dir"] ->
   File["phplist-conf-dir"]
 
   package { "phplist":
@@ -25,16 +29,16 @@ class phplist::remove (
     host_aliases => [ "www.phplist.com", ],
   }
 
-  file { "phplist-var-dir":
-    path    => "/var/lib/phplist",
+  file { "phplist-data-dir":
+    path    => "${data_dir}",
     ensure  => absent,
     recurse => true,
     force   => true,
     backup  => false,
   }
 
-  file { "phplist-share-dir":
-    path    => "/usr/share/phplist",
+  file { "phplist-base-dir":
+    path    => "${base_dir}",
     ensure  => absent,
     recurse => true,
     force   => true,
@@ -42,7 +46,7 @@ class phplist::remove (
   }
 
   file { "phplist-conf-dir":
-    path    => "/etc/phplist",
+    path    => "${conf_dir}",
     ensure  => absent,
     recurse => true,
     force   => true,

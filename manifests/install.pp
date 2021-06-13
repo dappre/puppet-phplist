@@ -15,6 +15,10 @@ class phplist::install (
   $plugin_dir_group = $::phplist::plugin_dir_group
   $hash_algo        = $::phplist::hash_algo
   $test             = $::phplist::test
+  $base_dir         = $::phplist::base_dir
+  $conf_dir         = $::phplist::conf_dir
+  $data_dir         = $::phplist::data_dir
+  $www_dir          = $::phplist::www_dir
 
   Package["php-PHPMailer"] ->
   Package["phplist"] ->
@@ -40,7 +44,7 @@ class phplist::install (
   }
 
   file { 'phplist-plugin-dir':
-    path    => '/usr/share/phplist/www/admin/plugins',
+    path    => "${www_dir}/admin/plugins",
     source  => 'puppet:///modules/phplist/plugins',
     owner   => 'root',
     group   => "${plugin_dir_group}",
@@ -49,12 +53,12 @@ class phplist::install (
   }
 
   file { "phplist-conf":
-    path    => "/etc/phplist/config.php",
+    path    => "${conf_dir}/config.php",
     content => template("phplist/config.php.erb"),
   }
 
   file { 'phplist-data-dir':
-    path    => "/var/lib/phplist",
+    path    => "${data_dir}",
     ensure  => 'directory',
     owner   => 'root',
     group   => 'apache',
@@ -62,7 +66,7 @@ class phplist::install (
   }
 
   file { 'phplist-tmp-dir':
-    path    => "/var/lib/phplist/tmp",
+    path    => "${data_dir}/tmp",
     ensure  => 'directory',
     owner   => 'root',
     group   => 'apache',
@@ -78,12 +82,12 @@ class phplist::install (
   }
 
   file { "phplist-uploadimages-lnk":
-    path    => "/usr/share/phplist/www/uploadimages",
+    path    => "${www_dir}/uploadimages",
     ensure  => absent,
   }
 
   file { "phplist-uploadimages-dir":
-    path    => "/var/lib/phplist/images",
+    path    => "${data_dir}/images",
     ensure  => absent,
     recurse => true,
     force   => true,
@@ -91,7 +95,7 @@ class phplist::install (
   }
 
   file { 'phplist-upload-dir':
-    path    => '/var/lib/phplist/upload',
+    path    => "${data_dir}/upload",
     ensure  => 'directory',
     owner   => 'root',
     group   => 'apache',
@@ -99,8 +103,8 @@ class phplist::install (
   }
 
   file { "phplist-upload-lnk":
-    path    => "/usr/share/phplist/www/upload",
-    ensure  => "/var/lib/phplist/upload",
+    path    => "${www_dir}/upload",
+    ensure  => "${data_dir}/upload",
   }
 
   # Add hosts entries that prevent this phplist instance to access public phplist webservers

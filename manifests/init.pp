@@ -11,6 +11,10 @@ class phplist (
   $plugin_dir_group = $phplist::params::plugin_dir_group,
   $hash_algo        = $phplist::params::hash_algo,
   $test             = $phplist::params::test,
+  $base_dir         = $phplist::params::base_dir,
+  $conf_dir         = $phplist::params::conf_dir,
+  $data_dir         = $phplist::params::data_dir,
+  $www_dir          = $phplist::params::www_dir,
 ) inherits phplist::params {
   if ($ensure) {
     case $ensure {

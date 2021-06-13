@@ -11,4 +11,8 @@ class phplist::params {
   $plugin_dir_group = 'root'
   $hash_algo        = 'sha256'
   $test             = 0
+  $base_dir         = '/usr/share/phplist'
+  $conf_dir         = '/etc/phplist'
+  $data_dir         = '/var/lib/phplist'
+  $www_dir          = "${base_dir}/www"
 }
