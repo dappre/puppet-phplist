@@ -6,7 +6,6 @@ class phplist::remove (
   $base_dir    = $::phplist::base_dir
   $conf_dir    = $::phplist::conf_dir
   $data_dir    = $::phplist::data_dir
-  $www_dir     = $::phplist::www_dir
 
   package { 'phplist':
     ensure  => absent,

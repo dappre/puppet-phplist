@@ -15,7 +15,6 @@ class phplist::params {
   $base_dir         = '/usr/share/phplist'
   $conf_dir         = '/etc/phplist'
   $data_dir         = '/var/lib/phplist'
-  $www_dir          = "${base_dir}/www"
   $manage_db        = true
   $mysql_bin        = '/usr/bin/mysql'
 }

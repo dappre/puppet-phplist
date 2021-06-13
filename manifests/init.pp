@@ -15,7 +15,6 @@ class phplist (
   $base_dir         = $phplist::params::base_dir,
   $conf_dir         = $phplist::params::conf_dir,
   $data_dir         = $phplist::params::data_dir,
-  $www_dir          = $phplist::params::www_dir,
   $manage_db        = $phplist::params::manage_db,
   $mysql_bin        = $phplist::params::mysql_bin,
 ) inherits phplist::params {

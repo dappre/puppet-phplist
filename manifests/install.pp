@@ -19,7 +19,6 @@ class phplist::install (
   $base_dir         = $::phplist::base_dir
   $conf_dir         = $::phplist::conf_dir
   $data_dir         = $::phplist::data_dir
-  $www_dir          = $::phplist::www_dir
   $manage_db        = $::phplist::manage_db
   $mysql_bin        = $::phplist::mysql_bin
 
@@ -44,7 +43,7 @@ class phplist::install (
   } ->
 
   file { 'phplist-plugin-dir':
-    path    => "${www_dir}/admin/plugins",
+    path    => "${base_dir}/www/admin/plugins",
     source  => 'puppet:///modules/phplist/plugins',
     owner   => 'root',
     group   => "${plugin_dir_group}",
@@ -73,19 +72,6 @@ class phplist::install (
     mode    => '0770',
   } ->
 
-  file { 'phplist-uploadimages-lnk':
-    path    => "${www_dir}/uploadimages",
-    ensure  => absent,
-  } ->
-
-  file { 'phplist-uploadimages-dir':
-    path    => "${data_dir}/images",
-    ensure  => absent,
-    recurse => true,
-    force   => true,
-    backup  => false,
-  } ->
-
   file { 'phplist-upload-dir':
     path    => "${data_dir}/upload",
     ensure  => 'directory',
@@ -95,7 +81,7 @@ class phplist::install (
   } ->
 
   file { 'phplist-upload-lnk':
-    path    => "${www_dir}/upload",
+    path    => "${base_dir}/www/upload",
     ensure  => "${data_dir}/upload",
   }
 }
