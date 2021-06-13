@@ -4,7 +4,6 @@ class phplist (
   $db_user          = $phplist::params::db_user,
   $db_password      = $phplist::params::db_password,
   $admin_password   = $phplist::params::admin_password,
-  $vname            = $phplist::params::vname,
   $bounce_email     = $phplist::params::bounce_email,
   $bounce_host      = $phplist::params::bounce_host,
   $bounce_user      = $phplist::params::bounce_user,

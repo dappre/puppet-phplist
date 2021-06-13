@@ -1,8 +1,6 @@
 class phplist::install (
 ) {
   include phplist
-  require mysqld
-  require httpd
 
   # Collect parameters from parent class
   $ensure           = $::phplist::ensure
@@ -10,7 +8,6 @@ class phplist::install (
   $db_user          = $::phplist::db_user
   $db_password      = $::phplist::db_password
   $admin_password   = $::phplist::admin_password
-  $vname            = $::phplist::vname
   $bounce_email     = $::phplist::bounce_email
   $bounce_host      = $::phplist::bounce_host
   $bounce_user      = $::phplist::bounce_user
@@ -25,15 +22,12 @@ class phplist::install (
   File["phplist-conf"] ->
   File['phplist-data-dir'] ->
   File['phplist-tmp-dir'] ->
-  Mysqld::Create["phplist"] ->
   Exec["phplist-update-admin-pwd"] ->
   File["phplist-uploadimages-lnk"] ->
   File["phplist-uploadimages-dir"] ->
   File["phplist-upload-dir"] ->
   File["phplist-upload-lnk"] ->
-  Host["phplist-blocked"] ->
-  File["httpd-phplist-conf"] ->
-  Httpd::Vrules["${vname}-phplist"]
+  Host["phplist-blocked"]
 
   $mysql = "mysql --batch --skip-column-names -u${db_user} -p${db_password} ${db_name}"
 
@@ -73,12 +67,6 @@ class phplist::install (
     owner   => 'root',
     group   => 'apache',
     mode    => '0770',
-  }
-
-  mysqld::create { "phplist":
-    db_name => $db_name,
-    db_user => $db_user,
-    db_pass => $db_password,
   }
 
   exec { "phplist-update-admin-pwd":
@@ -122,13 +110,4 @@ class phplist::install (
     ip           => "127.0.0.2",
     host_aliases => [ "www.phplist.com", ],
   }
-
-  file { "httpd-phplist-conf":
-    path    => "/etc/httpd/conf.d/phplist.conf",
-    ensure  => 'absent',
-    backup  => false,
-    notify  => Class['httpd::service'],
-  }
-
-  httpd::vrules { "${vname}-phplist": }
 }
