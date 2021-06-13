@@ -8,14 +8,9 @@ class phplist::remove (
   $data_dir    = $::phplist::data_dir
   $www_dir     = $::phplist::www_dir
 
-  Package['phplist'] ->
-  File["phplist-data-dir"] ->
-  File["phplist-base-dir"] ->
-  File["phplist-conf-dir"]
-
   package { 'phplist':
     ensure  => absent,
-  }
+  } ->
 
   file { 'phplist-data-dir':
     path    => "${data_dir}",
@@ -23,7 +18,7 @@ class phplist::remove (
     recurse => true,
     force   => true,
     backup  => false,
-  }
+  } ->
 
   file { 'phplist-base-dir':
     path    => "${base_dir}",
@@ -31,7 +26,7 @@ class phplist::remove (
     recurse => true,
     force   => true,
     backup  => false,
-  }
+  } ->
 
   file { 'phplist-conf-dir':
     path    => "${conf_dir}",

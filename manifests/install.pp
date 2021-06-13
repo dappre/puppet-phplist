@@ -20,27 +20,15 @@ class phplist::install (
   $data_dir         = $::phplist::data_dir
   $www_dir          = $::phplist::www_dir
 
-  Package['php-PHPMailer'] ->
-  Package['phplist'] ->
-  File['phplist-plugin-dir'] ->
-  File['phplist-conf'] ->
-  File['phplist-data-dir'] ->
-  File['phplist-tmp-dir'] ->
-  Exec['phplist-update-admin-pwd'] ->
-  File['phplist-uploadimages-lnk'] ->
-  File['phplist-uploadimages-dir'] ->
-  File['phplist-upload-dir'] ->
-  File['phplist-upload-lnk']
-
   $mysql = "mysql --batch --skip-column-names -u${db_user} -p${db_password} ${db_name}"
 
   package { 'php-PHPMailer':
     ensure  => latest,
-  }
+  } ->
 
   package { 'phplist':
     ensure  => $ensure,
-  }
+  } ->
 
   file { 'phplist-plugin-dir':
     path    => "${www_dir}/admin/plugins",
@@ -49,12 +37,12 @@ class phplist::install (
     group   => "${plugin_dir_group}",
     mode    => 'ug=rw,o=r,a+X',
     recurse => 'remote',
-  }
+  } ->
 
   file { 'phplist-conf':
     path    => "${conf_dir}/config.php",
     content => template('phplist/config.php.erb'),
-  }
+  } ->
 
   file { 'phplist-data-dir':
     path    => "${data_dir}",
@@ -62,7 +50,7 @@ class phplist::install (
     owner   => 'root',
     group   => 'apache',
     mode    => '0770',
-  }
+  } ->
 
   file { 'phplist-tmp-dir':
     path    => "${data_dir}/tmp",
@@ -70,7 +58,7 @@ class phplist::install (
     owner   => 'root',
     group   => 'apache',
     mode    => '0770',
-  }
+  } ->
 
   exec { 'phplist-update-admin-pwd':
     path      => [ '/bin', '/usr/bin', ],
@@ -78,12 +66,12 @@ class phplist::install (
     onlyif    => "${mysql} -e \"SELECT loginname FROM phplist_admin WHERE loginname = 'admin'\" 2> /dev/null | grep \"^admin\"",
     unless    => "[ \"${admin_password}\" == \"false\" ] || [ \"\$(${mysql} -e \"SELECT password FROM phplist_admin WHERE loginname = 'admin'\" | tail -1)\" == \"$(echo -n '${admin_password}' | ${hash_algo}sum | grep -Po '^([0-9a-f]+)(?=\s)')\" ]",
     logoutput => true,
-  }
+  } ->
 
   file { 'phplist-uploadimages-lnk':
     path    => "${www_dir}/uploadimages",
     ensure  => absent,
-  }
+  } ->
 
   file { 'phplist-uploadimages-dir':
     path    => "${data_dir}/images",
@@ -91,7 +79,7 @@ class phplist::install (
     recurse => true,
     force   => true,
     backup  => false,
-  }
+  } ->
 
   file { 'phplist-upload-dir':
     path    => "${data_dir}/upload",
@@ -99,7 +87,7 @@ class phplist::install (
     owner   => 'root',
     group   => 'apache',
     mode    => '0775',
-  }
+  } ->
 
   file { 'phplist-upload-lnk':
     path    => "${www_dir}/upload",
