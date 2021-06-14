@@ -1,5 +1,5 @@
+Alias /phplist/upload <%= @vars['data_dir'] %>/<%= @vars['iname'] %>/upload
 Alias /phplist <%= @vars['base_dir'] %>/www
-Alias /phplist/upload <%= @vars['data_dir'] %>/upload
 
 <Directory <%= @vars['base_dir'] %>/www>
 	Options None
@@ -8,13 +8,18 @@ Alias /phplist/upload <%= @vars['data_dir'] %>/upload
 	#AllowOverride Options Indexes Limit
 	AllowOverride All
 	AddType application/x-httpd-php .php
-	php_admin_value open_basedir <%= @vars['base_dir'] %>:<%= @vars['data_dir'] %>:<%= @vars['conf_dir'] %>:/tmp:/dev/urandom:/usr/share/php/PHPMailer
+	php_admin_value open_basedir <%= @vars['base_dir'] %>\
+:<%= @vars['data_dir'] %>/<%= @vars['iname'] %>\
+:<%= @vars['conf_dir'] %>/config.php\
+:<%= @vars['conf_dir'] %>/<%= @vars['iname'] %>\
+:/tmp:/dev/urandom\
+:/usr/share/php/PHPMailer
 	php_admin_flag file_uploads on
 	php_admin_value upload_max_filesize 5M
 	php_admin_value post_max_size 5M
 	php_admin_value memory_limit 128M
-	php_admin_value session.save_path <%= @vars['data_dir'] %>/tmp
-	php_admin_value upload_tmp_dir <%= @vars['data_dir'] %>/tmp
+	php_admin_value session.save_path <%= @vars['data_dir'] %>/<%= @vars['iname'] %>/tmp
+	php_admin_value upload_tmp_dir <%= @vars['data_dir'] %>/<%= @vars['iname'] %>/tmp
 	DirectoryIndex index.php index.html
 </Directory>
 <% if !@vars['admin_acl'].empty? -%>

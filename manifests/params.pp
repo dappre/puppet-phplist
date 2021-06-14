@@ -9,10 +9,10 @@ class phplist::params {
   $bounce_host      = "msg.${domain}"
   $bounce_user      = 'bot-listbounce'
   $bounce_password  = 'eKA32J2XdFBnx7Ye'
-  $data_group       = 'apache'
-  $plugins_group    = 'root'
   $hash_algo        = 'sha256'
   $test             = 0
+  $data_group       = 'apache'
+  $plugins_group    = 'root'
   $base_dir         = '/usr/share/phplist'
   $conf_dir         = '/etc/phplist'
   $data_dir         = '/var/lib/phplist'
@@ -30,4 +30,5 @@ class phplist::params {
   $ldap_all_user_is_super     = 0
   $ldap_all_user_pattern      = "(uid=__LOGIN__)"
   $ldap_matching_user_pattern = "(uid=__LOGIN__)"
+  $default_instance = 'default'
 }

@@ -1,0 +1,16 @@
+ <?php
+switch ($_SERVER['SERVER_NAME']) {
+<% if !@instances.empty? -%>
+<% @instances.each do |iname,instance| -%>
+<% if iname != @default_instance and instance['svname'] != '*' -%>
+  case "<%= instance['svname'] %>":
+    include_once("<%= iname %>/config.php");
+  break;
+
+<% end -%>
+<% end -%>
+<% end -%>
+  default:
+    include_once("<%= @default_instance %>/config.php");
+  break;
+}

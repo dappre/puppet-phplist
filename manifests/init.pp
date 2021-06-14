@@ -9,10 +9,10 @@ class phplist (
   $bounce_host      = $phplist::params::bounce_host,
   $bounce_user      = $phplist::params::bounce_user,
   $bounce_password  = $phplist::params::bounce_password,
-  $data_group       = $phplist::params::data_group,
-  $plugins_group    = $phplist::params::plugins_group,
   $hash_algo        = $phplist::params::hash_algo,
   $test             = $phplist::params::test,
+  $data_group       = $phplist::params::data_group,
+  $plugins_group    = $phplist::params::plugins_group,
   $base_dir         = $phplist::params::base_dir,
   $conf_dir         = $phplist::params::conf_dir,
   $data_dir         = $phplist::params::data_dir,
@@ -30,17 +30,50 @@ class phplist (
   $ldap_all_user_is_super     = $phplist::params::ldap_all_user_is_super,
   $ldap_all_user_pattern      = $phplist::params::ldap_all_user_pattern,
   $ldap_matching_user_pattern = $phplist::params::ldap_matching_user_pattern,
+  $default_instance = $phplist::params::default_instance,
+  $instances        = {},
 ) inherits phplist::params {
+
+  Exec {
+    path => [ '/bin', '/usr/bin', ],
+  }
+
+  anchor {'phplist-begin': }
+
   if ($ensure) {
     case $ensure {
       /absent|false/: {
         contain phplist::remove
       }
       default:  {
-        contain phplist::install
+        include phplist::install
+
+        if ($instances == {} or $instances["${default_instance}"] == {}) {
+          Anchor['phplist-begin'] ->
+          phplist::instance { "${default_instance}": } ->
+          Anchor['phplist-end']
+        } else {
+          create_resources('phplist::instance', $instances)
+          $instances.each | String $iname, Hash $instance | {
+            Anchor['phplist-begin'] ->
+            Phplist::Instance["${iname}"] ->
+            Anchor['phplist-end']
+          }
+          if ($instances["${default_instance}"] == {}) {
+            Anchor['phplist-begin'] ->
+            phplist::instance { "${default_instance}": } ->
+            Anchor['phplist-end']
+          }
+        }
       }
     }
   } else {
-    contain phplist::remove
+    include phplist::remove
+
+    Anchor['phplist-begin'] ->
+    Class['phplist::remove'] ->
+    Anchor['phplist-end']
   }
+
+  anchor {'phplist-end': }
 }
