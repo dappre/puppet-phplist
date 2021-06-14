@@ -9,7 +9,8 @@ class phplist::params {
   $bounce_host      = "msg.${domain}"
   $bounce_user      = 'bot-listbounce'
   $bounce_password  = 'eKA32J2XdFBnx7Ye'
-  $plugin_dir_group = 'root'
+  $data_group       = 'apache'
+  $plugins_group    = 'root'
   $hash_algo        = 'sha256'
   $test             = 0
   $base_dir         = '/usr/share/phplist'

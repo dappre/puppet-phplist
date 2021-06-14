@@ -13,7 +13,8 @@ class phplist::install (
   $bounce_host      = $::phplist::bounce_host
   $bounce_user      = $::phplist::bounce_user
   $bounce_password  = $::phplist::bounce_password
-  $plugin_dir_group = $::phplist::plugin_dir_group
+  $data_group       = $::phplist::data_group
+  $plugins_group    = $::phplist::plugins_group
   $hash_algo        = $::phplist::hash_algo
   $test             = $::phplist::test
   $base_dir         = $::phplist::base_dir
@@ -46,7 +47,7 @@ class phplist::install (
     path    => "${base_dir}/www/admin/plugins",
     source  => 'puppet:///modules/phplist/plugins',
     owner   => 'root',
-    group   => "${plugin_dir_group}",
+    group   => "${plugins_group}",
     mode    => 'ug=rw,o=r,a+X',
     recurse => 'remote',
   } ->
@@ -60,15 +61,15 @@ class phplist::install (
     path    => "${data_dir}",
     ensure  => 'directory',
     owner   => 'root',
-    group   => 'apache',
+    group   => "${data_group}",
     mode    => '0770',
-  } ->
+  }
 
   file { 'phplist-tmp-dir':
     path    => "${data_dir}/tmp",
     ensure  => 'directory',
     owner   => 'root',
-    group   => 'apache',
+    group   => "${data_group}",
     mode    => '0770',
   } ->
 
@@ -76,7 +77,7 @@ class phplist::install (
     path    => "${data_dir}/upload",
     ensure  => 'directory',
     owner   => 'root',
-    group   => 'apache',
+    group   => "${data_group}",
     mode    => '0775',
   } ->
 
