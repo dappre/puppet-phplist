@@ -18,4 +18,16 @@ class phplist::params {
   $data_dir         = '/var/lib/phplist'
   $manage_db        = true
   $mysql_bin        = '/usr/bin/mysql'
+  $ldap             = false
+  $ldap_proto       = 'ldaps'
+  $ldap_server      = 'ldap.example.com'
+  $ldap_port        = 636
+  $ldap_base        = 'dc=example,dc=com'
+  $ldap_users_dn    = "ou=users,${ldap_base}"
+  $ldap_groups_dn   = "ou=groups,${ldap_base}"
+  $ldap_bind_dn     = "cn=read-only,ou=people,${ldap_base}"
+  $ldap_bind_pw     = "changeme"
+  $ldap_all_user_is_super     = 0
+  $ldap_all_user_pattern      = "(uid=__LOGIN__)"
+  $ldap_matching_user_pattern = "(uid=__LOGIN__)"
 }

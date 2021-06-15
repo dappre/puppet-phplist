@@ -180,6 +180,7 @@ LDAP admin authentication settings
 */
 
 # set this to 1 to enable LDAP authentication for admin logins
+<% if @ldap -%>
 $ldap_enabled = 1;
 
 # the LDAP host to use
@@ -196,23 +197,23 @@ $ldap_auth_bind_dn = "<%= @ldap_bind_dn %>";
 
 # the password for $ldap_auth_bind_dn
 # (Will be ignored if ldap_auth_bind_dn is empty)
-$ldap_auth_bind_pw = "<%= @ldap_bind_password %>";
+$ldap_auth_bind_pw = "<%= @ldap_bind_pw %>";
 
 # users under this point in the directory will have their accounts
 # created automatically when they first login - if you don't want
 # this feature, comment this out
-$ldap_all_user_base_dn = "ou=People,<%= @ldap_base %>";
+$ldap_all_user_base_dn = "<%= @ldap_users_dn %>";
 
 # the filter pattern to locate the entry that matches the user's
 # login name ("__LOGIN__" is replaced with the user's login name)
-$ldap_all_user_pattern = "(uid=__LOGIN__)";
+$ldap_all_user_pattern = "<%= @ldap_all_user_pattern %>";
 
 # the attribute which contains the login name
 $ldap_all_user_uid_attribute = "uid";
 
 # set this to 1 if users who are "all_user" are super admins, or 0
 # means that they are not
-$ldap_all_user_is_super = 1;
+$ldap_all_user_is_super = <%= @ldap_all_user_is_super %>;
 
 # set this array to give some specific privileges to newly created
 # admin users. By default, no privileges will be given, besides to
@@ -228,11 +229,11 @@ $ldap_default_privs = array(
 # accounts explicitly created in PHPList and the directory is
 # justed used to check the authentication - if you don't want this
 # feature, comment this out
-$ldap_matching_user_base_dn = "ou=People,<%= @ldap_base %>";
+$ldap_matching_user_base_dn = "<%= @ldap_users_dn %>";
 
 # the filter pattern to locate the entry that matches the user's
 # login name ("__LOGIN__" is replaced with the user's login name)
-$ldap_matching_user_pattern = "(&(uid=__LOGIN__)(|(uid=bdonneaux)(uid=rzwarts)(uid=mlouman)(uid=blouman)(uid=tlouman)(uid=rstrauven)(uid=jderoos)))";
+$ldap_matching_user_pattern = "<%= @ldap_matching_user_pattern %>";
 
 # the attribute which contains the login name
 $ldap_matching_user_uid_attribute = "uid";
@@ -244,6 +245,9 @@ $ldap_matching_user_uid_attribute = "uid";
 # something else goes terribly wrong - it is generally more secure
 # to leave this commented out
 $ldap_except_users = array('admin');
+<% else -%>
+$ldap_enabled = 0;
+<% end -%>
 
 
 /*

@@ -22,6 +22,18 @@ class phplist::install (
   $data_dir         = $::phplist::data_dir
   $manage_db        = $::phplist::manage_db
   $mysql_bin        = $::phplist::mysql_bin
+  $ldap             = $::phplist::ldap
+  $ldap_proto       = $::phplist::ldap_proto
+  $ldap_server      = $::phplist::ldap_server
+  $ldap_port        = $::phplist::ldap_port
+  $ldap_base        = $::phplist::ldap_base
+  $ldap_users_dn    = $::phplist::ldap_users_dn
+  $ldap_groups_dn   = $::phplist::ldap_groups_dn
+  $ldap_bind_dn     = $::phplist::ldap_bind_dn
+  $ldap_bind_pw     = $::phplist::ldap_bind_pw
+  $ldap_all_user_is_super     = $::phplist::ldap_all_user_is_super
+  $ldap_all_user_pattern      = $::phplist::ldap_all_user_pattern
+  $ldap_matching_user_pattern = $::phplist::ldap_matching_user_pattern
 
   if ($manage_db) {
     $mysql_cmd = "${mysql_bin} --batch --skip-column-names -h${db_host} -u${db_user} -p${db_password} ${db_name}"

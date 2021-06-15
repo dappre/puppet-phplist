@@ -18,6 +18,18 @@ class phplist (
   $data_dir         = $phplist::params::data_dir,
   $manage_db        = $phplist::params::manage_db,
   $mysql_bin        = $phplist::params::mysql_bin,
+  $ldap             = $phplist::params::ldap,
+  $ldap_proto       = $phplist::params::ldap_proto,
+  $ldap_server      = $phplist::params::ldap_server,
+  $ldap_port        = $phplist::params::ldap_port,
+  $ldap_base        = $phplist::params::ldap_base,
+  $ldap_users_dn    = $phplist::params::ldap_users_dn,
+  $ldap_groups_dn   = $phplist::params::ldap_groups_dn,
+  $ldap_bind_dn     = $phplist::params::ldap_bind_dn,
+  $ldap_bind_pw     = $phplist::params::ldap_bind_pw,
+  $ldap_all_user_is_super     = $phplist::params::ldap_all_user_is_super,
+  $ldap_all_user_pattern      = $phplist::params::ldap_all_user_pattern,
+  $ldap_matching_user_pattern = $phplist::params::ldap_matching_user_pattern,
 ) inherits phplist::params {
   if ($ensure) {
     case $ensure {
