@@ -32,6 +32,27 @@ class phplist::install (
       onlyif    => "${mysql_cmd} -e \"SELECT loginname FROM phplist_admin WHERE loginname = 'admin'\" 2> /dev/null | grep \"^admin\"",
       unless    => "[ \"${admin_password}\" == \"false\" ] || [ \"\$(${mysql_cmd} -e \"SELECT password FROM phplist_admin WHERE loginname = 'admin'\" | tail -1)\" == \"$(echo -n '${admin_password}' | ${hash_algo}sum | grep -Po '^([0-9a-f]+)(?=\s)')\" ]",
       logoutput => true,
+    } ->
+
+    exec { "phplist-insert-upload-dir":
+      path      => [ '/bin', '/usr/bin', ],
+      command   => "${mysql_cmd} -e \"INSERT INTO phplist_config (item,value) VALUES ('kcfinder_uploaddir','${data_dir}/upload')\"",
+      onlyif    => [
+        "${mysql_cmd} -e \"DESCRIBE phplist_config\"",
+        "test \"\$(${mysql_cmd} -e \"SELECT item FROM phplist_config WHERE item = 'kcfinder_uploaddir'\")\" = \"\"",
+      ],
+      logoutput => true,
+    } ->
+
+    exec { "phplist-update-upload-dir":
+      path      => [ '/bin', '/usr/bin', ],
+      command   => "${mysql_cmd} -e \"UPDATE phplist_config SET value = '${data_dir}/upload' WHERE item = 'kcfinder_uploaddir'\"",
+      onlyif    => [
+        "${mysql_cmd} -e \"DESCRIBE phplist_config\"",
+        "test \"\$(${mysql_cmd} -e \"SELECT item FROM phplist_config WHERE item = 'kcfinder_uploaddir'\")\" = \"kcfinder_uploaddir\"",
+        "test \"\$(${mysql_cmd} -e \"SELECT value FROM phplist_config WHERE item = 'kcfinder_uploaddir'\")\" != \"${data_dir}/upload\"",
+      ],
+      logoutput => true,
     }
   }
 
