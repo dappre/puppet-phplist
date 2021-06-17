@@ -14,14 +14,24 @@ class phplist::install (
 
   Anchor['phplist-begin'] ->
 
+  # We use PHPMailer provided by the system
+  # TODO: make it more flexible from alternate sources
+  # I do believe phpList is shipping its own version,
+  # but it was somehow more safe to rely on the OS
   package { 'php-PHPMailer':
     ensure  => latest,
   } ->
 
+  # Install phpList provided by the system
+  # TODO: make it more flexible from alternate sources
   package { 'phplist':
     ensure  => $ensure,
   } ->
 
+  # Provide extra plugins and restrict permission
+  # With only read access given by default
+  # because they are shared between instances
+  # TODO: treat plugin as data per instances
   file { 'phplist-plugin-dir':
     path    => "${base_dir}/www/admin/plugins",
     source  => 'puppet:///modules/phplist/plugins',
@@ -31,6 +41,8 @@ class phplist::install (
     recurse => 'remote',
   } ->
 
+  # Overwrite the initial configuration to switch
+  # between instances based on the SERVER_NAME
   file { 'phplist-conf':
     path    => "${conf_dir}/config.php",
     owner   => 'root',

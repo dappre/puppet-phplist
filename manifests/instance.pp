@@ -32,6 +32,8 @@ define phplist::instance (
   $manage_db        = $::phplist::manage_db
   $mysql_bin        = $::phplist::mysql_bin
 
+  # Manage some configuration part directly in the DB
+  # TODO: initialize and upgrade the DB if possible
   if ($manage_db) {
     $mysql_cmd = "${mysql_bin} --batch --skip-column-names -h${db_host} -u${db_user} -p${db_password} ${db_name}"
 
