@@ -1,134 +1,90 @@
 class phplist::install (
 ) {
   include phplist
-  require mysqld
-  require httpd
 
   # Collect parameters from parent class
   $ensure           = $::phplist::ensure
-  $db_name          = $::phplist::db_name
-  $db_user          = $::phplist::db_user
-  $db_password      = $::phplist::db_password
-  $admin_password   = $::phplist::admin_password
-  $vname            = $::phplist::vname
-  $bounce_email     = $::phplist::bounce_email
-  $bounce_host      = $::phplist::bounce_host
-  $bounce_user      = $::phplist::bounce_user
-  $bounce_password  = $::phplist::bounce_password
-  $plugin_dir_group = $::phplist::plugin_dir_group
-  $hash_algo        = $::phplist::hash_algo
-  $test             = $::phplist::test
+  $data_group       = $::phplist::data_group
+  $plugins_group    = $::phplist::plugins_group
+  $base_dir         = $::phplist::base_dir
+  $conf_dir         = $::phplist::conf_dir
+  $data_dir         = $::phplist::data_dir
+  $default_instance = $::phplist::default_instance
+  $instances        = $::phplist::instances
 
-  Package["php-PHPMailer"] ->
-  Package["phplist"] ->
-  File['phplist-plugin-dir'] ->
-  File["phplist-conf"] ->
-  File['phplist-data-dir'] ->
-  File['phplist-tmp-dir'] ->
-  Mysqld::Create["phplist"] ->
-  Exec["phplist-update-admin-pwd"] ->
-  File["phplist-uploadimages-lnk"] ->
-  File["phplist-uploadimages-dir"] ->
-  File["phplist-upload-dir"] ->
-  File["phplist-upload-lnk"] ->
-  Host["phplist-blocked"] ->
-  File["httpd-phplist-conf"] ->
-  Httpd::Vrules["${vname}-phplist"]
+  Anchor['phplist-begin'] ->
 
-  $mysql = "mysql --batch --skip-column-names -u${db_user} -p${db_password} ${db_name}"
-
-  package { "php-PHPMailer":
+  # We use PHPMailer provided by the system
+  # TODO: make it more flexible from alternate sources
+  # I do believe phpList is shipping its own version,
+  # but it was somehow more safe to rely on the OS
+  package { 'php-PHPMailer':
     ensure  => latest,
-  }
+  } ->
 
-  package { "phplist":
+  # Install phpList provided by the system
+  # TODO: make it more flexible from alternate sources
+  package { 'phplist':
     ensure  => $ensure,
-  }
+  } ->
 
+  # Provide extra plugins and restrict permission
+  # With only read access given by default
+  # because they are shared between instances
+  # TODO: treat plugin as data per instances
   file { 'phplist-plugin-dir':
-    path    => '/usr/share/phplist/www/admin/plugins',
+    path    => "${base_dir}/www/admin/plugins",
     source  => 'puppet:///modules/phplist/plugins',
     owner   => 'root',
-    group   => "${plugin_dir_group}",
+    group   => "${plugins_group}",
     mode    => 'ug=rw,o=r,a+X',
     recurse => 'remote',
-  }
+  } ->
 
-  file { "phplist-conf":
-    path    => "/etc/phplist/config.php",
-    content => template("phplist/config.php.erb"),
-  }
+  # Overwrite the initial configuration to switch
+  # between instances based on the SERVER_NAME
+  file { 'phplist-conf':
+    path    => "${conf_dir}/config.php",
+    owner   => 'root',
+    group   => 'root',
+    content => template('phplist/config_switch.php.erb'),
+  } ->
 
   file { 'phplist-data-dir':
-    path    => "/var/lib/phplist",
+    path    => "${data_dir}",
     ensure  => 'directory',
     owner   => 'root',
-    group   => 'apache',
+    group   => "${data_group}",
     mode    => '0770',
-  }
+  } ->
 
-  file { 'phplist-tmp-dir':
-    path    => "/var/lib/phplist/tmp",
-    ensure  => 'directory',
-    owner   => 'root',
-    group   => 'apache',
-    mode    => '0770',
-  }
+  # Make sure the default instances has been created before going any further
+  Phplist::Instance["${default_instance}"] ->
 
-  mysqld::create { "phplist":
-    db_name => $db_name,
-    db_user => $db_user,
-    db_pass => $db_password,
-  }
+  # Migrate existing tmp and upload folder to default instance data dir 
+  exec { 'phplist-tmp-dir-mv':
+    command => "mv ${data_dir}/tmp ${data_dir}/${default_instance}",
+    onlyif  => [
+      "test -d \"${data_dir}/tmp\"",
+      "test \"$(ls -A ${data_dir}/tmp)\"",
+      "test ! \"$(ls -A ${data_dir}/${default_instance}/tmp)\"",
+    ],
+  } ->
 
-  exec { "phplist-update-admin-pwd":
-    path      => [ "/bin", "/usr/bin", ],
-    command   => "${mysql} -e \"UPDATE phplist_admin SET password = \'$(echo -n '${admin_password}' | ${hash_algo}sum | grep -Po '^([0-9a-f]+)(?=\s)')\' WHERE loginname = 'admin'\"",
-    onlyif    => "${mysql} -e \"SELECT loginname FROM phplist_admin WHERE loginname = 'admin'\" 2> /dev/null | grep \"^admin\"",
-    unless    => "[ \"${admin_password}\" == \"false\" ] || [ \"\$(${mysql} -e \"SELECT password FROM phplist_admin WHERE loginname = 'admin'\" | tail -1)\" == \"$(echo -n '${admin_password}' | ${hash_algo}sum | grep -Po '^([0-9a-f]+)(?=\s)')\" ]",
-    logoutput => true,
-  }
+  exec { 'phplist-upload-dir-mv':
+    command => "mv ${data_dir}/upload ${data_dir}/${default_instance}",
+    onlyif  => [
+      "test -d \"${data_dir}/upload\"",
+      "test \"$(ls -A ${data_dir}/upload)\"",
+      "test ! \"$(ls -A ${data_dir}/${default_instance}/upload)\"",
+    ],
+  } ->
 
-  file { "phplist-uploadimages-lnk":
-    path    => "/usr/share/phplist/www/uploadimages",
-    ensure  => absent,
-  }
+  # Update base symlink to default instance data dir too 
+  file { 'phplist-upload-lnk':
+    path    => "${base_dir}/www/upload",
+    ensure  => "${data_dir}/${default_instance}/upload",
+  } ->
 
-  file { "phplist-uploadimages-dir":
-    path    => "/var/lib/phplist/images",
-    ensure  => absent,
-    recurse => true,
-    force   => true,
-    backup  => false,
-  }
-
-  file { 'phplist-upload-dir':
-    path    => '/var/lib/phplist/upload',
-    ensure  => 'directory',
-    owner   => 'root',
-    group   => 'apache',
-    mode    => '0775',
-  }
-
-  file { "phplist-upload-lnk":
-    path    => "/usr/share/phplist/www/upload",
-    ensure  => "/var/lib/phplist/upload",
-  }
-
-  # Add hosts entries that prevent this phplist instance to access public phplist webservers
-  host { "phplist-blocked":
-    ensure       => present,
-    name         => "www.phplist.org",
-    ip           => "127.0.0.2",
-    host_aliases => [ "www.phplist.com", ],
-  }
-
-  file { "httpd-phplist-conf":
-    path    => "/etc/httpd/conf.d/phplist.conf",
-    ensure  => 'absent',
-    backup  => false,
-    notify  => Class['httpd::service'],
-  }
-
-  httpd::vrules { "${vname}-phplist": }
+  Anchor['phplist-end']
 }
