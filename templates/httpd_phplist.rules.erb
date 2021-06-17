@@ -22,7 +22,7 @@ Alias /phplist <%= @vars['base_dir'] %>/www
 	php_admin_value upload_tmp_dir <%= @vars['data_dir'] %>/<%= @vars['iname'] %>/tmp
 	DirectoryIndex index.php index.html
 </Directory>
-<% if !@vars['admin_acl'].empty? -%>
+<% if @vars['admin_acl'] and !@vars['admin_acl'].empty? -%>
 
 <Location /phplist/admin>
 	<IfVersion < 2.4 >
