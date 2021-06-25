@@ -11,6 +11,7 @@ class phplist::install (
   $data_dir         = $::phplist::data_dir
   $default_instance = $::phplist::default_instance
   $instances        = $::phplist::instances
+  $status_dir       = $::phplist::status_dir
 
   Anchor['phplist-begin'] ->
 
@@ -87,4 +88,25 @@ class phplist::install (
   } ->
 
   Anchor['phplist-end']
+
+  if ($status_dir) {
+    if (is_string($status_dir)) {
+      $status_dir_path = "${base_dir}/www/${status_dir}"
+    } else {
+      $status_dir_path = "${base_dir}/www/status"
+    }
+
+    Package['phplist'] ->
+
+    file { 'phplist-status-dir':
+      path    => $status_dir_path,
+      source  => 'puppet:///modules/phplist/status',
+      owner   => 'root',
+      group   => 'root',
+      mode    => 'ug=rw,o=r,a+X',
+      recurse => true,
+    } ->
+
+    Anchor['phplist-end']
+  }
 }

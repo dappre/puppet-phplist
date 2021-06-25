@@ -32,6 +32,7 @@ class phplist (
   $ldap_matching_user_pattern = $phplist::params::ldap_matching_user_pattern,
   $default_instance = $phplist::params::default_instance,
   $instances        = {},
+  $status_dir       = $::phplist::params::status_dir,
 ) inherits phplist::params {
 
   Exec {
