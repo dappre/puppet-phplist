@@ -70,6 +70,9 @@ define phplist::instance (
     }
   }
 
+  Anchor['phplist-begin'] ->
+  Package['phplist'] ->
+
   file { "phplist-${name}-conf-dir":
     path    => "${conf_dir}",
     ensure  => 'directory',
