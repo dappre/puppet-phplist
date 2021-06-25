@@ -31,4 +31,5 @@ class phplist::params {
   $ldap_all_user_pattern      = "(uid=__LOGIN__)"
   $ldap_matching_user_pattern = "(uid=__LOGIN__)"
   $default_instance = 'default'
+  $status_dir       = false
 }
