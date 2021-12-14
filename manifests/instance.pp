@@ -10,6 +10,7 @@ define phplist::instance (
   $bounce_host      = $::phplist::bounce_host,
   $bounce_user      = $::phplist::bounce_user,
   $bounce_password  = $::phplist::bounce_password,
+  $bounce_mailbox_port        = $::phplist::bounce_mailbox_port,
   $hash_algo        = $::phplist::hash_algo,
   $test             = $::phplist::test,
   $ldap             = $::phplist::ldap,

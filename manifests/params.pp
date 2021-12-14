@@ -9,6 +9,7 @@ class phplist::params {
   $bounce_host      = "msg.${domain}"
   $bounce_user      = 'bot-listbounce'
   $bounce_password  = 'eKA32J2XdFBnx7Ye'
+  $bounce_mailbox_port        = '995/pop3/ssl'
   $hash_algo        = 'sha256'
   $test             = 0
   $data_group       = 'apache'
