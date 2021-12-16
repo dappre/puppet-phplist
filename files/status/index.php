@@ -20,7 +20,7 @@ if(!@include('../config/config.php')){
   mysql_select_db($database_name) or $status = "CRITICAL (Could not select phpList database)";
 
   if ($status == "OK") {
-    if ($table_prefix == '') {
+    if (!isset($table_prefix)) {
       $table_prefix = 'phplist';
     }
     $result = mysql_query('SELECT value FROM '. $table_prefix .'_config WHERE item = "version"');
